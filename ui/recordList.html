@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div id='app' class="content">
+		    <div class="topMenu">
+	    		<div class="glyphicon glyphicon-menu-left pull-left" v-on:click="gotoHome();"></div>
+		    	<h3 v-html="types[type].name"></h3>
+		    </div>
+
+			<div class="mainbody listSummary">
+				<div class="form-inline form-withmargin">
+		            <div class="btn-group btn-group-justified">
+		                <a class="" v-on:click="changeDisplay(0);">地点列表</a>
+		                <a class="--primary">记录汇总</a>
+		            </div>
+		            <div class="clearfix"></div>
+		        </div>
+
+		        <div class="form-inline form-withmargin">
+		        	<div class="row">
+		        		<div class="col-xs-6">
+		        			<select id="points" class="form-control" v-on:change="changePoint(this)">
+								<option value="0">所有地点</option>
+								<option v-for="p in pointsList" :value="p.id" v-html="p.name"></option>
+							</select>
+		        		</div>
+		        		<div class="col-xs-6">
+		        			<select id="types" class="form-control" v-on:change="changeType(this)">
+								<option value="">所有类型</option>
+								<option v-for="(item,key,index) of types" :value="item.id" v-html="item.name"
+								></option>
+							</select>
+		        		</div>
+		        	</div>
+		        </div>
+
+				<div class="list">
+		            <div class="media" v-on:click="gotoSummary(b.id);" v-for="b in list">
+		                <div class="glyphicon glyphicon-menu-right"></div>
+		                <div class="media-left">
+		                    <img class="media-object" v-bind:src="b.device['image'] ? b.device['image'] : settings.default_img" style="width: 64px; height: 64px;">
+		                </div>
+		                <div class="media-body">
+		                    <h4 class="media-heading" v-html="b.device.location.name + ' ' + b.device.name"></h4>
+		                    <div>
+		                    	<p><b>巡检人:</b> <em v-html="b.operator+' ('+b.operatorPhone+')'"></em></p>
+		                    	<p><b>巡检结果:</b> <em  :class="[b.status=='正常'?'':'label-danger-s']" v-html="b.status+' ('+b.updateTime+')'"></em></p>
+		                    </div>
+		                </div>
+		            </div>
+
+		            <div class="text-center" v-on:click="getMore();" v-if="!loading && totalPage>curPage">点击加载更多</div>
+
+		        </div>
+
+	           	<div class="clearfix"></div>
+	            <p id="data_no_item" v-if="list.length <= 0" class="nodatas">
+	                <span class="icons info_icon"></span>
+	                没有数据
+	            </p>
+
+		    </div>
+
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+	    var type = global.request("type") || 0;
+	    var pid = global.request("pid") || 0;
+		function getPoints(self) {
+			self.loading = true;
+			global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getPoints,
+	            _param: {
+	            	isAll: 1,
+	            	type: self.type
+	            }
+            }, function(res){
+            	self.loading = false;
+            	self.pointsList = res.data;
+            	setTimeout(function(){
+					$("#points").val(pid);
+            	}, 300);
+            }, function(res){
+            	self.loading = false;
+            	alert("获取数据失败");
+            });
+		}
+
+	    function getRecords(self, isMore) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getRecords,
+	            _param: {
+	            	page: self.curPage + 1,
+	            	location_id: self.pid || "",
+	            	type: self.type
+	            }
+            }, function(res){
+            	if(isMore) {
+            		self.list = self.list.concat(res.data);
+            	} else {
+            		self.list = res.data;
+            	}
+            	self.curPage = res.curPage;
+            	self.totalPage = res.totalPage;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				loading: false,
+				// 选项列表
+				pid: pid,
+				pointsList: [],
+				type: type,
+				types: settings.types,
+
+				// 记录列表
+				list: [],
+				curPage: 0,
+				totalPage: 0,
+			},
+			methods: {
+				gotoHome: function () {
+					window.location.href="index.html";
+				},
+				changeDisplay: function(d) {
+					window.location.href = "pointList.html?type="+type;
+				},
+				getMore: function() {
+					getRecords(this, true);
+				},
+				changePoint: function() {
+					var pid = $("#points").val();
+					this.pid=pid;
+					this.curPage = 0;
+					getRecords(this);
+				},
+				changeType: function(){
+					var type = $("#types").val();
+					this.type=type;
+					this.curPage = 0;
+					getRecords(this);
+				},
+				gotoSummary: function(id, type) {
+					window.location.href = "recordDetail.html?id="+id;
+				},
+
+				getRecords: getRecords,
+			},
+			mounted() {
+				getPoints(this);
+                getRecords(this);
+				$("#types").val(type);
+			},
+		});
+
+		
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		window.scan.alert("scan");
+	}, false );
+	</script>
+	</body>
+</html>
+
+
+
+

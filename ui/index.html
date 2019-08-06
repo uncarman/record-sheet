@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div class="content" id="app">
+	    
+		    <div class="topMenu">
+	    		<div id="scanBtn" style="display: none;" class="pull-right" onclick="scan();">扫一扫</div>
+		    	<h3 style="margin-left: 10px;">巡检系统</h3>
+		    	<div style="display: none;" id= "bcid"></div>
+		    </div>
+
+		    <div class="mainbody buildingSummary">
+		        <ul class="list-group">
+		        	<li class="list-group-item" v-on:click="gotoDetail(item.id);" v-for="(item,key,index) of types">
+		        		<div class="glyphicon glyphicon-menu-right pull-right"></div>
+						<div :style="item.style" class="glyphicon" :class="item.icon"></div>
+						<span v-html="item.name"></span>
+		        	</li>
+				</ul>
+		    </div>
+
+		    <div class="clearfix"></div>
+
+		    <div class="mainbody" v-if="list.length>0">
+		    	<hr />
+		    	<h3 class="text-left" style="margin:15px 0; ">待检列表</h3>
+
+		    	<div class="list">
+		            <div class="media" v-on:click="gotoSummary(b, b.type);" v-for="b in list">
+		                <div class="glyphicon glyphicon-menu-right"></div>
+		                <div class="media-left">
+		                    <img class="media-object" v-bind:src="b['image'] ? b['image'] : settings.default_img" style="width: 64px; height: 64px;">
+		                </div>
+		                <div class="media-body">
+		                    <h4 class="media-heading" v-html="b.name"></h4>
+	                    	<div>
+	                    		<div>
+			                    	<p><b>负责人:</b> <em v-html="b.admin+' ('+b.adminPhone+')'"></em></p>
+			                    	<p v-if="b.records.length>0"><b>最近巡检:</b> <em  :class="[b.records[0].status=='正常'?'':'label-danger-s']" v-html="b.records[0].status+' ('+b.records[0].updateTime+')'"></em></p>
+			                    </div>
+		                    </div>
+		                </div>
+		            </div>
+
+		            <div class="clearfix"></div>
+		            <p id="data_no_item" v-if="list.length <= 0" class="nodatas">
+		                <span class="icons info_icon"></span>
+		                没有数据
+		            </p>
+		        </div>
+
+		    </div>
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	window.scan = function(){
+		console.log("window.scan");
+		window.scan.start();
+		//window.location.href = "scanResult.html?pid=1";
+	}
+	$(document).ready(function(){
+		console.log(settings.types);
+		
+		function getData(self, d) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getDevice,
+	            _param: {
+	            	page: self.curPage + 1,
+	            	need_check: 1
+	            }
+            }, function(res){
+            	self.list = res.data;
+            	self.curPage = res.curPage;
+            	self.totalPage = res.totalPage;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				types: settings.types,
+				display: 0,
+				list: [],
+				curPage: 0,
+				totalPage: 0,
+			},
+			methods: {
+				gotoHome: function () {
+					window.location.href = "index.html";
+				},
+				gotoDetail: function(type) {
+					window.location.href = "pointList.html?type="+type;
+				},
+				gotoSummary: function(point, type) {
+					window.location.href = "deviceDetail.html?id="+point.id+"&type="+type;		
+				},
+			},
+			mounted(){
+                getData(this);
+            }
+		});
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		$("#scanBtn").show();
+		window.scan = new plus.barcode.Barcode('bcid');
+		window.scan.onmarked = function( type, result ) {
+			var text = '未知: ';
+			switch(type){
+				case plus.barcode.QR:
+				text = 'QR: ';
+				break;
+				case plus.barcode.EAN13:
+				text = 'EAN13: ';
+				break;
+				case plus.barcode.EAN8:
+				text = 'EAN8: ';
+				break;
+			}
+			alert( text+result );
+			window.location.href = "scanResult.html?pid="+result;
+		}
+		window.scan.onerror = function(error){
+			// Error 
+			var code = error.code; 			// 错误编码
+			var message = error.message;	// 错误描述信息
+			alert("扫码失败: " + code + " " + message);
+			window.scan.cancel();
+		};
+	}, false );
+	</script>
+	</body>
+</html>
+		

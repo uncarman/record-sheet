@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div class="content" id="app">
+	    
+		    <div class="topMenu">
+	    		<div class="glyphicon glyphicon-menu-left pull-left" v-on:click="gotoHome();"></div>
+		    	<h3>扫描结果</h3>
+		    </div>
+
+		    <div class="mainbody listSummary">
+		    	<div v-if="point.id">
+			        <h3 v-html="point.name"></h3>
+					<p>&nbsp;</p>
+					<div v-if="point.devices.length > 0">
+						<div class="media" v-on:click="gotoDetail(d.id);" v-for="d in point.devices">
+			                <div class="glyphicon glyphicon-menu-right"></div>
+			                <div class="media-left">
+			                    <img class="media-object" v-bind:src="d['image']" style="width: 64px; height: 64px;">
+			                </div>
+			                <div class="media-body">
+			                    <h4 class="media-heading" v-html="d.name"></h4>
+		                    	<p><b>责任人:</b> <em v-html="d.admin"></em></p>
+		                    	<p><b>联系电话:</b> <em v-html="d.adminPhone"></em></p>
+			                </div>
+			            </div>
+			        </div>
+			        <div v-else>
+	                	没有添加设备
+	                </div> 
+				</div>
+				<div v-else>
+                	没有数据
+                </div> 
+		    </div>
+
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	window.scan = function(){
+		console.log("window.scan");
+	}
+	$(document).ready(function(){
+		var id = global.request("pid") || 0;
+	    function getPoint(self) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getPoint+"/"+self.id,
+	            _param: {
+	            	id: self.id
+	            }
+            }, function(res){
+            	console.log(res);
+            	self.point = res.data;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				id: id,
+				point: {},
+			},
+			methods: {
+				gotoHome: function () {
+					window.location.href = "index.html";
+				},
+				gotoDetail: function(id) {
+					window.location.href = "deviceDetail.html?id="+id;
+				},
+			},
+			mounted(){
+                getPoint(this);
+            }
+		});
+
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		window.scan.alert("scan");
+	}, false );
+	</script>
+	</body>
+</html>
+		

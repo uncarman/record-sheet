@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div id='app' class="content">
+		    <div class="topMenu">
+	    		<div class="glyphicon glyphicon-menu-left pull-left" v-on:click="gotoHome();"></div>
+		    	<h3 v-html="typeTitle"></h3>
+		    </div>
+
+			<div class="mainbody listSummary">
+				<div class="form-inline form-withmargin">
+		            <div class="btn-group btn-group-justified">
+		                <a class="--primary">地点列表</a>
+		                <a class="" v-on:click="changeDisplay(1);">记录汇总</a>
+		            </div>
+		            <div class="clearfix"></div>
+		        </div>
+
+				<div class="list">
+		            <div class="media" v-on:click="gotoSummary(b, type);" v-for="b in list">
+		                <div class="glyphicon glyphicon-menu-right"></div>
+		                <div class="media-left">
+		                    <div v-if="b.devices.length > 0">
+		                    	<img class="media-object" v-bind:src="b.devices[0]['image'] ? b.devices[0]['image'] : settings.default_img" style="width: 64px; height: 64px;">
+		                    </div>
+		                    <div v-else>
+		                    	<img class="media-object" v-bind:src="settings.default_img" style="width: 64px; height: 64px;">
+		                    </div>
+		                </div>
+		                <div class="media-body">
+		                    <h4 class="media-heading" v-html="b.name"></h4>
+		                    <div v-if="b.devices.length > 0">
+		                    	<div v-for="d in b.devices" v-if="d.type==type">
+		                    		<div v-if="d.record">
+				                    	<p><b>巡检人:</b> <em v-html="d.record.operator+' ('+d.record.operatorPhone+')'"></em></p>
+				                    	<p><b>最近巡检:</b> <em  :class="[d.record.status=='正常'?'':'label-danger-s']" v-html="d.record.status+' ('+d.record.updateTime+')'"></em></p>
+				                    </div>
+			                    </div>
+		                    </div>
+		                    <div v-else>
+		                    	还未添加设备
+		                    </div>
+		                </div>
+		                </div>
+		            </div>
+
+		            <div class="clearfix"></div>
+		            <p id="data_no_item" v-if="list.length <= 0" class="nodatas">
+		                <span class="icons info_icon"></span>
+		                没有数据
+		            </p>
+		        </div>
+
+	           	<div class="clearfix"></div>
+	            <p id="data_no_item" v-if="list.length <= 0" class="nodatas">
+	                <span class="icons info_icon"></span>
+	                没有数据
+	            </p>
+
+		    </div>
+
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+	    var type = global.request("type") || 0;
+
+	    function getData(self, d) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getPoints,
+	            _param: {
+	            	page: self.curPage + 1,
+	            	type: self.type
+	            }
+            }, function(res){
+            	self.list = res.data;
+            	self.curPage = res.curPage;
+            	self.totalPage = res.totalPage;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				display: 0,
+				typeTitle: settings.types[type]["name"],
+				type: type,
+				list: [],
+				curPage: 0,
+				totalPage: 0,
+			},
+			methods: {
+				gotoHome: function () {
+					window.location.href="index.html";
+				},
+				changeDisplay: function(d) {
+					window.location.href = "recordList.html?type="+type;
+				},
+				gotoSummary: function(point, type) {
+					if(point.devices.length > 0) {
+						window.location.href = "deviceDetail.html?id="+point.devices[0].id+"&type="+type;
+					} else {
+						alert("数据错误");
+					}			
+				},
+
+				getData: getData,
+			},
+			mounted(){
+                getData(this);
+            }
+		});
+
+		
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		window.scan.alert("scan");
+	}, false );
+	</script>
+	</body>
+</html>
+		

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>登录</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div class="login">
+		    <div class="bar">
+		        <ul class="login-tab ">
+		            <li class="current login-li">登录</li>
+		            <li style="color:#fff;" ng-click="goto('register')">注册</li>
+		        </ul>
+		    </div>
+		    <label class="tel">
+		        <input type="text" maxlength=11 placeholder="请输入手机号码" ng-model="inputMobile"
+		                ng-focus="clearError('mobile')"
+		                ng-change="checkEnable()"
+		                ng-blur="checkMoblie()"/>
+		    </label>
+		    <label class="pwd">
+		        <input type="passwd" maxlength=25 placeholder="请输入密码" />
+		    </label>
+		    <button class="text-center " ng-class="btnCss" ng-click="login()" ng-bind="btnText"></button>
+		    <div class="error" ng-show="!errorMessage ==''" ng-bind="errorMessage">
+		    <i class="icons"></i>
+		    </div>
+		</div>
+		<div class="text-center bottom-text hint">光合联萌账号可直接登录</div>
+		<div class='default-style'>
+		    © 2015-2017 瑞升电力丨沪ICP备15035130号丨上海瑞升电力开发有限公司
+		</div>
+		<script src="js/libs/jquery-1.11.0.min.js"></script>
+		<script src="js/f_ui_dialog.js"></script>
+		<script src="js/comm.js"></script>
+
+		<script type="text/javascript">
+		// 监听plusready事件  
+		document.addEventListener( "plusready", function(){
+			// 扩展API加载完毕，现在可以正常调用扩展API
+			
+		}, false );
+		</script>
+	</body>
+</html>
+		

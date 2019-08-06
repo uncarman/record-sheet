@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div id='app' class="content">
+		    <div class="topMenu">
+	    		<div class="glyphicon glyphicon-menu-left pull-left" v-on:click="gotoBack();"></div>
+		    	<h3 v-html="types[record.device.type].name+'记录'"></h3>
+		    </div>
+
+			<div class="mainbody listSummary">
+				<div class="media-body">
+                    <h3 class="media-heading" v-html="record.name"></h3>
+                    <div>
+                    	<p><b>巡检地点:</b> <em v-html="record.device.location.name"></em></p>
+                    	<p><b>责任人:</b> <em v-html="record.device.admin+' ('+record.device.adminPhone+')'"></em></p>
+                    </div>
+                </div>
+                <div class="clearfixed"></div>
+				<div class="media-body">
+                    <h3 class="media-heading" v-html="record.name"></h3>
+                    <div>
+                    	<p><b>巡检时间:</b> <em v-html="record.updateTime"></em></p>
+                    	<p><b>巡检人:</b> <em v-html="record.operator+' ('+record.operatorPhone+')'"></em></p>
+                    </div>
+                </div>
+                <p class="clearfixed">&nbsp;</p>
+                <div class="media-body">
+                    <h3 class="media-heading" v-html="'巡检结果: ' +record.status" :class="[record.status=='正常'?'text-success':'text-danger']"></h3>
+                    <h3 class="media-heading">巡检项: </h3>
+                    <ul class="list-group">
+						<li class="list-group-item" v-for="e in record.extr">
+							<span class="pull-right label" :class="[e.status=='正常'?'label-success':'label-danger']" v-html="e.status"></span>
+    						<span v-html="e.name"></span>
+						</li>
+					</ul>
+					<h3 class="media-heading">异常说明: </h3>
+					<p v-html="record.notes"></p>
+					<h3 class="media-heading">现场照片: </h3>
+					<div class="mb10" v-for="p in record.photos">
+						<img v-bind:src="p" width="100%" />
+					</div>
+                </div>
+		    </div>
+
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+	    var id = global.request("id") || 0;
+	    function getRecord(self) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getRecord+"/"+self.id,
+	            _param: {
+	            	id: self.id
+	            }
+            }, function(res){
+            	console.log(res);
+            	self.record = res.data;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				types: settings.types,
+				// 记录列表
+				id: id,
+				record: {},
+			},
+			methods: {
+				gotoBack: function() {
+					window.history.go(-1);
+				},
+				getRecord: getRecord,
+			},
+			mounted() {
+				getRecord(this);
+			},
+		});
+
+		
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		window.scan.alert("scan");
+	}, false );
+	</script>
+	</body>
+</html>
+		

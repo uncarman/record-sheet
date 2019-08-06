@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div id='app' class="content">
+		    <div class="topMenu">
+	    		<div class="glyphicon glyphicon-menu-left pull-left" v-on:click="gotoBack();"></div>
+		    	<h3>增加巡检记录</h3>
+		    </div>
+
+			<div class="mainbody listSummary">
+                <input type="hidden" id="deviceId" :value="device.id">
+                <h3>基本信息:</h3>
+				<div class="form-group">
+					<label for="operator">姓名:</label>
+					<input type="text" class="form-control" id="operator" v-model="formData.operator" :value="device.admin">
+				</div>
+				<div class="form-group">
+					<label for="operatorPhone">电话:</label>
+					<input type="tel" class="form-control" id="operatorPhone" v-model="formData.operatorPhone" :value="device.adminPhone">
+				</div>
+				<div class="form-group">
+					<label for="pointName">地点:</label>
+					<input readonly="readonly" type="text" class="form-control" id="pointName" :value="device.point.name">
+				</div>
+
+				<h3>巡检结果:</h3>
+				<label class="radio-inline" style="margin: 10px 0 25px; padding-left: 0px;">
+					<span class="glyphicon glyphicon-ok" v-bind:class="formData.status===1?'selected': ''" v-on:click="updateStatusValue(1);" style="margin-left: 0px;">正常</span> 
+					<span class="glyphicon glyphicon-remove" v-bind:class="formData.status===0?'selected': ''" v-on:click="updateStatusValue(0);">异常</span> 
+				</label>
+
+				<h3><em v-html="types[device.type].name"></em>检查项:</h3>
+				<ul class="list-group">
+					<li class="list-group-item" v-for="e in device.extr">
+						<span v-html="e.name" class="pull-left"></span>
+
+						<label class="radio-inline pull-right" v-bind:id="e.id">
+							<span class="glyphicon glyphicon-ok" v-bind:class="formData.extr[e.id]===1?'selected': ''" v-on:click="updateExtrValue(e.id, 1);"></span>
+							<span class="glyphicon glyphicon-remove" v-bind:class="formData.extr[e.id]===0?'selected': ''" v-on:click="updateExtrValue(e.id, 0);"></span>
+						</label>
+						<div class="clearfix"></div>
+					</li>
+				</ul>
+
+				<h3>异常说明:</h3>
+				<div style="margin-bottom:25px; ">
+					<textarea id="notes" class="form-control"></textarea>
+				</div>
+
+				<h3>现场照片:</h3>
+				<div>
+					<img v-bind:src="p" v-for="p, ind in formData.photos" width="24%" style="margin-bottom: 10px; margin-right: 5px; display: inline;" v-on:click="removeImg(ind)" />
+					<div class="uploadImg" v-on:click="$('#file').click();">+</div>
+					<input style="display: none;" id="file" class="filepath" v-on:change="changePic()" type="file">
+				</div>
+
+				<p style="margin: 20px 0;">
+                	<button class="btn btn-primary btn-lg btn-block" v-on:click="saveRecord();">保存记录</button>
+                </p>
+		    </div>
+
+		</div>
+
+	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap3.3.7.min.js"></script>
+	<script type="text/javascript" src="js/libs/angular.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/comm.js"></script>
+	<script type="text/javascript" src="js/f_ui_dialog.js"></script>
+	<script type="text/javascript" src="js/fake_data.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+	    var id = global.request("id") || 0;
+	    function getDevice(self) {
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getDevice+"/"+self.id,
+	            _param: {
+	            	id: self.id
+	            }
+            }, function(res){
+            	console.log(res);
+            	self.device = res.data;
+            	self.formData.operator = self.device.admin;
+            	self.formData.operatorPhone = self.device.adminPhone;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+	    }
+
+	    function fmtExtr(extr) {
+	    	var r = [];
+	    	for(o in extr) {
+	    		r.push({
+	    			id: o,
+	    			result: extr[o]
+	    		})
+	    	}
+	    	return r;
+	    }
+
+	    function postData(self) {
+	    	global.ajax_data(this, {
+            	_method: 'post',
+	            _url: settings.ajax_func.saveRecord,
+	            _param: {
+					device_id: id,
+					logger_position: self.device.location.id,
+	            	logger_name: self.formData.operator,
+					logger_phone: self.formData.operatorPhone,
+					result: self.formData.status,
+					check_item_logs: fmtExtr(self.formData.extr),
+					notes: self.formData.notes,
+					photos: self.formData.photos,
+	            }
+            }, function(res){
+            	console.log(res);
+            	if(res.code == 10000) {
+            		alert("保存记录成功");
+            		window.location.href = "index.html";
+            	}
+            }, function(res){
+            	alert("保存数据失败");
+            });
+	    }
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				types: settings.types,
+				// 记录列表
+				id: id,
+				device: {},
+
+				formData: {
+					operator: "",
+					operatorPhone: "",
+					deviceId: id,
+
+					status: "",
+					extr: {},
+					notes: "",
+					photos: [],
+				}
+			},
+			methods: {
+				gotoBack: function() {
+					window.history.go(-1);
+				},
+
+				updateName: function() {
+					this.formData.operator = $("#operator").val();
+				},
+
+
+				updatePhone: function() {
+					this.formData.operatorPhone = $("#operatorPhone").val();
+				},
+
+				updateStatusValue: function(s) {
+					this.formData.status = s;
+				},
+
+				updateExtrValue: function(eid, v) {
+					this.$set(this.formData.extr, eid, v);
+					console.log(this.formData);
+				},
+
+				changePic: function(){
+					var self = this;
+					var reads= new FileReader();
+			        f=document.getElementById('file').files[0];
+			        reads.readAsDataURL(f);
+			        reads.onload=function (e) {
+			        	console.log(e.target.result);
+			            self.formData.photos.push(e.target.result);
+			        	//this.$set(self.formData.photos, self.formData.photos.length, e.target.result);
+			        };
+				},
+
+				removeImg: function(ind) {
+					if(confirm("确定删除当前图片?")) {
+						this.formData.photos.splice(ind, 1);
+					}
+				},
+
+				saveRecord: function() {
+					this.formData.operator = $("#operator").val();
+					this.formData.operatorPhone = $("#operatorPhone").val();
+					this.formData.notes = $("#notes").val();
+
+					if(this.formData.operator == "") {
+						alert("请填写姓名");
+						return false;
+					}
+					if(this.formData.operatorPhone == "") {
+						alert("请填写电话");
+						return false;
+					}
+					if(this.formData.status !== 0 && this.formData.status !== 1) {
+						alert("请输入检查结果");
+						return false;
+					}
+					if(Object.keys(this.formData.extr).length != this.device.extr.length) {
+						alert("请输入所有检查项");
+						return false;
+					}
+
+					console.log(this.formData);
+					postData(this);
+				},
+
+				getDevice: getDevice,
+			},
+			mounted() {
+				getDevice(this);
+			},
+		});
+
+		
+	});
+
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		// 扩展API加载完毕，现在可以正常调用扩展API
+		window.scan.alert("scan");
+	}, false );
+	</script>
+	</body>
+</html>
+		
