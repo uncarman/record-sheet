@@ -10,11 +10,10 @@
 	</head>
 	<body>
 		<div class="content" id="app">
-	    
+	    	<div class="barcodediv"></div>
 		    <div class="topMenu">
 	    		<div id="scanBtn" style="display: none;" class="pull-right" onclick="scan();">扫一扫</div>
 		    	<h3 style="margin-left: 10px;">巡检系统</h3>
-		    	<div style="display: none;" id= "bcid"></div>
 		    </div>
 
 		    <div class="mainbody buildingSummary">
@@ -70,13 +69,9 @@
 
 	<script type="text/javascript">
 	window.scan = function(){
-		console.log("window.scan");
-		window.scan.start();
-		//window.location.href = "scanResult.html?pid=1";
+		window.location.href = "scan.html";
 	}
 	$(document).ready(function(){
-		console.log(settings.types);
-		
 		function getData(self, d) {
             global.ajax_data(this, {
             	_method: 'get',
@@ -122,41 +117,9 @@
 
 	// 监听plusready事件  
 	document.addEventListener( "plusready", function(){
-		// 扩展API加载完毕，现在可以正常调用扩展API
 		$("#scanBtn").show();
-		window.scan = new plus.barcode.Barcode('bcid', [plus.barcode.QR], { 
-			top:'100px', 
-			left:'0px', 
-			width: '100%', 
-			height: '500px', 
-			position: 'static' 
-		});
-		window.scan.onmarked = function( type, result ) {
-			var text = '未知: ';
-			switch(type){
-				case plus.barcode.QR:
-				text = 'QR: ';
-				break;
-				case plus.barcode.EAN13:
-				text = 'EAN13: ';
-				break;
-				case plus.barcode.EAN8:
-				text = 'EAN8: ';
-				break;
-			}
-			alert( text+result );
-			window.location.href = "scanResult.html?pid="+result;
-		}
-		window.scan.onerror = function(error){
-			// Error 
-			var code = error.code; 			// 错误编码
-			var message = error.message;	// 错误描述信息
-			alert("扫码失败: " + code + " " + message);
-			window.scan.cancel();
-		};
-		plus.webview.currentWebview().append(window.scan);
-	}, false );
+	}, false);
+	
 	</script>
 	</body>
 </html>
-		

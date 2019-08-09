@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title>巡检系统</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/global.css">
+	</head>
+	<body>
+		<div class="content" id="app">
+			<div class="barcodediv"></div>
+		</div>
+	<script type="text/javascript">
+	var barcode = null;
+	// 监听plusready事件  
+	document.addEventListener( "plusready", function(){
+		function createBarcode() {
+			barcode = new plus.barcode.Barcode('barcodediv', [plus.barcode.QR], { 
+				top:'0px', 
+				left:'0px', 
+				width: '100%', 
+				height: '100%', 
+				position: 'static'
+			});
+			barcode.onmarked = function( type, result ) {
+				var text = '未知: ';
+				switch(type){
+					case plus.barcode.QR:
+					text = 'QR: ';
+					break;
+					case plus.barcode.EAN13:
+					text = 'EAN13: ';
+					break;
+					case plus.barcode.EAN8:
+					text = 'EAN8: ';
+					break;
+				}
+				barcode.close();
+				window.location.href = "scanResult.html?pid="+result;
+			}
+			barcode.onerror = function(error){
+				// Error 
+				var code = error.code; 			// 错误编码
+				var message = error.message;	// 错误描述信息
+				alert("扫码失败: " + code + " " + message);
+			};
+			plus.webview.currentWebview().append(barcode);
+
+			barcode.start();
+		}
+		
+		createBarcode();
+
+	}, false);
+	</script>
