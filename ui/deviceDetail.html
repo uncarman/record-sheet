@@ -46,7 +46,7 @@
 					<input readonly="" type="text" class="form-control" id="name" v-model="device.location.name">
 				</div>
 				<div  v-if="device.image">
-					<img v-bind:src="device.image" />
+					<img class="bigImg" v-bind:src="device.image" />
 				</div>
 				<h3>设备信息:</h3>
 				<div v-html="device.notes"></div>

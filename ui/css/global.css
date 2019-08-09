@@ -102,3 +102,5 @@ h2 em { font-size: 14px; line-height: 2; }
 
 
 .label-danger-s { color: #fff!important; background: red; }
+
+.bigImg { width: 90%; margin: 10%; }

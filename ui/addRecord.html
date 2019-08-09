@@ -182,7 +182,7 @@
 			        reads.readAsDataURL(f);
 			        reads.onload=function (e) {
 			        	console.log(e.target.result);
-			            self.formData.photos.push(e.target.result);
+			            self.formData.photos.push(global.compress(e.target.result, 960, 0.6));
 			        	//this.$set(self.formData.photos, self.formData.photos.length, e.target.result);
 			        };
 				},
