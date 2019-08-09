@@ -124,7 +124,13 @@
 	document.addEventListener( "plusready", function(){
 		// 扩展API加载完毕，现在可以正常调用扩展API
 		$("#scanBtn").show();
-		window.scan = new plus.barcode.Barcode('bcid');
+		window.scan = new plus.barcode.Barcode('bcid', [plus.barcode.QR], { 
+			top:'100px', 
+			left:'0px', 
+			width: '100%', 
+			height: '500px', 
+			position: 'static' 
+		});
 		window.scan.onmarked = function( type, result ) {
 			var text = '未知: ';
 			switch(type){
@@ -148,6 +154,7 @@
 			alert("扫码失败: " + code + " " + message);
 			window.scan.cancel();
 		};
+		plus.webview.currentWebview().append(window.scan);
 	}, false );
 	</script>
 	</body>
