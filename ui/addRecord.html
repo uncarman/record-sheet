@@ -188,7 +188,9 @@
 			                var width = image.width;  
 			                var height = image.height;  
 			                if(width > 960) {
-			                	self.formData.photos.push(global.compress(e.target.result, 960, 0.6));
+			                	global.compress(e.target.result, 960, 0.6).then(function (val) {
+						            self.formData.photos.push(val);
+						        });
 			                } eles {
 			                	self.formData.photos.push(e.target.result);
 			                }
