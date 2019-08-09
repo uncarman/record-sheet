@@ -182,7 +182,18 @@
 			        reads.readAsDataURL(f);
 			        reads.onload=function (e) {
 			        	console.log(e.target.result);
-			            self.formData.photos.push(global.compress(e.target.result, 960, 0.6));
+			        	//加载图片获取图片真实宽度和高度  
+			            var image = new Image();  
+			            image.onload=function(){  
+			                var width = image.width;  
+			                var height = image.height;  
+			                if(width > 960) {
+			                	self.formData.photos.push(global.compress(e.target.result, 960, 0.6));
+			                } eles {
+			                	self.formData.photos.push(e.target.result);
+			                }
+			            };  
+			            image.src= e.target.result;
 			        	//this.$set(self.formData.photos, self.formData.photos.length, e.target.result);
 			        };
 				},
