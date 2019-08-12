@@ -15,7 +15,7 @@ class BasicAuth
      */
     public function handle($request, Closure $next)
     {
-        $authorization = $request->header('Authorization');
+        $authorization = $request->input('token');
 //        if (!$authorization && strpos($authorization, 'Basic ') == false) {
 //            abort(401);
 //        }

@@ -19,7 +19,7 @@ var settings = {
     root: "",
 
     domain: "http://47.100.196.152:8091",  // 接口地址
-    cross_domain: false,
+    cross_domain: true,
     ajax_timeout: 30*1000, //ajax超时时间 (单位:毫秒)
     // ajax auth
     username: "admin",
@@ -174,6 +174,7 @@ var global = {
         var cache = !!np._cache;
 
         var _param = param._param || {};
+        _param.token = global.generateAuthorization() || "";
 
         // 替换 url 中的参数
         for(o in _param) {
@@ -181,7 +182,7 @@ var global = {
         }
 
         var header = {
-            "authorization" : global.generateAuthorization() || "",
+            "Authorization" : global.generateAuthorization() || "",
         };
 
         var req = {
