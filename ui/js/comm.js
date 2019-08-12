@@ -191,7 +191,7 @@ var global = {
             cache : cache,
             timeout: timeout,
             data : _param,
-            headers : header,
+            //headers : header,
             crossDomain : Object.hasOwnProperty(param.crossDomain) ? param.crossDomain : settings.cross_domain,
             success : function(data) {
                 try{
