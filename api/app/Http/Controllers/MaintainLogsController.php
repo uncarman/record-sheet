@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MaintainLogRequest;
 use App\Http\Resources\MaintainLogResource;
-use App\Models\Device;
 use App\Models\DeviceCheckItem;
 use App\Models\MaintainLog;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -56,7 +55,7 @@ class MaintainLogsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(MaintainLogRequest $request)
@@ -101,7 +100,7 @@ class MaintainLogsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\MaintainLog $maintainLog
+     * @param \App\Models\MaintainLog $maintainLog
      * @return \Illuminate\Http\Response
      */
     public function show(MaintainLog $maintainLog)
@@ -112,7 +111,7 @@ class MaintainLogsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\MaintainLog $maintainLog
+     * @param \App\Models\MaintainLog $maintainLog
      * @return \Illuminate\Http\Response
      */
     public function edit(MaintainLog $maintainLog)
@@ -123,8 +122,8 @@ class MaintainLogsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\MaintainLog $maintainLog
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\MaintainLog $maintainLog
      * @return \Illuminate\Http\Response
      */
     public function update(MaintainLogRequest $request, MaintainLog $maintainLog)
@@ -167,7 +166,7 @@ class MaintainLogsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\MaintainLog $maintainLog
+     * @param \App\Models\MaintainLog $maintainLog
      * @return \Illuminate\Http\Response
      */
     public function destroy(MaintainLog $maintainLog)

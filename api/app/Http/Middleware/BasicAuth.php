@@ -9,19 +9,19 @@ class BasicAuth
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $authorization = $request->header('Authorization');
-        if (!$authorization && strpos($authorization, 'Basic ') == false) {
-            abort(401);
-        }
+//        if (!$authorization && strpos($authorization, 'Basic ') == false) {
+//            abort(401);
+//        }
 
-        $auth = explode(' ', $authorization);
-        $credential = explode(':', base64_decode($auth[1]));
+//        $auth = explode(' ', $authorization);
+        $credential = explode(':', base64_decode($authorization));
 
         if (empty($credential)) {
             abort(401);

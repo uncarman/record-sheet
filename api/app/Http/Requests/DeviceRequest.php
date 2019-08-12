@@ -36,6 +36,7 @@ class DeviceRequest extends FormRequest
                     'desc' => ['nullable'],
                     'check_items' => ['nullable'],
                     'check_items.*.name' => ['nullable'],
+                    'interval' => ['required']
 //                    'check_items.*.desc' => ['nullable'],
                 ];
                 break;

@@ -58,14 +58,6 @@
             color: #ABABAB;
             font-size: 12px;
         }</style>
-    <script>var _hmt = _hmt || [];
-        var hmid = "1dfa88d0c8571eef2d383070cb3e5ca1";
-        (function () {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?" + hmid;
-            var s = document.getElementsByTagName("script")[0];
-            s.parentNode.insertBefore(hm, s);
-        })();</script>
     <link href=/css/chunk-vendors.faf58205.css rel=stylesheet>
     <link href=/css/app.f1bce0bf.css rel=stylesheet>
 </head>
@@ -81,7 +73,7 @@
         </div>
     </div>
 </div>
-<script src=/js/chunk-vendors.40482883.js></script>
-<script src=/js/app.62a5ac97.js></script>
+<script src=/js/chunk-vendors.0ec0aad1.js></script>
+<script src=/js/app.190e5997.js></script>
 </body>
 </html>

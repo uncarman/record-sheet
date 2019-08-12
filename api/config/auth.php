@@ -44,7 +44,6 @@ return [
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
-            'hash' => false,
         ],
     ],
 
@@ -99,7 +98,6 @@ return [
             'expire' => 60,
         ],
     ],
-
 
     'basic' => [
         'username' => env('BASIC_AUTH_USERNAME', ''),

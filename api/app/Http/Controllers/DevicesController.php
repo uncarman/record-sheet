@@ -15,15 +15,34 @@ class DevicesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $type = $request->input('type');
+        $status = $request->input('status', null);
+        $location_id = $request->input('location_id', null);
+        $search = $request->input('search', '');
+        $needCheck = $request->input('need_check', null);
+        $expire = $request->input('expire', null);
+
         $devices = Device::with([
             'check_items',
             'location',
             'maintain_logs' => function ($query) {
                 $query->latest();
             }
-        ])->latest()->paginate(10);
+        ])->when($type, function ($query, $type) {
+            $query->where('type', $type);
+        })->when($status != null, function ($query) use ($status) {
+            $query->where('status', $status);
+        })->when($location_id, function ($query, $location_id) {
+            $query->where('location_id', $location_id);
+        })->when($search, function ($query, $search) {
+            $query->where('name', 'like', "%{$search}%")->orWhere('sn', 'like', "%{$search}%");
+        })->when($needCheck != null, function ($query) {
+            $query->needCheck();
+        })->when($expire, function ($query) {
+            $query->expire();
+        })->latest()->paginate(10);
 
         return DeviceResource::collection($devices)->additional([
             'curPage' => $devices->currentPage(),
@@ -44,7 +63,7 @@ class DevicesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(DeviceRequest $request)
@@ -53,7 +72,7 @@ class DevicesController extends Controller
 
         try {
             DB::transaction(function () use ($request, &$device) {
-                $device = Device::create($request->only('name', 'sn', 'location_id', 'type', 'model', 'expired_at', 'desc', 'image'));
+                $device = Device::create($request->only('name', 'sn', 'location_id', 'type', 'model', 'expired_at', 'desc', 'image', 'interval'));
 
                 foreach ($request->input('check_items', []) as $item) {
                     $device->check_items()->create([
@@ -81,12 +100,12 @@ class DevicesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Device $device
+     * @param \App\Models\Device $device
      * @return \Illuminate\Http\Response
      */
     public function show(Device $device)
     {
-        return new DeviceResource($device->loadMissing([
+        return new DeviceResource($device->load([
             'location', 'check_items', 'maintain_logs' => function ($query) {
                 $query->latest()->limit(1);
             }
@@ -96,7 +115,7 @@ class DevicesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Device $device
+     * @param \App\Models\Device $device
      * @return \Illuminate\Http\Response
      */
     public function edit(Device $device)
@@ -107,14 +126,14 @@ class DevicesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Device $device
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Device $device
      * @return \Illuminate\Http\Response
      */
     public function update(DeviceRequest $request, Device $device)
     {
         try {
-            $device->update($request->only('name', 'sn', 'location_id', 'type', 'model', 'expired_at', 'desc', 'image'));
+            $device->update($request->only('name', 'sn', 'location_id', 'type', 'model', 'expired_at', 'desc', 'image', 'interval'));
 
             $items = collect();
 
@@ -132,6 +151,7 @@ class DevicesController extends Controller
             return response([
                 'message' => '保存失败',
                 'exception' => $e->getMessage(),
+                'traces' => $e->getTrace()
             ], 500);
         }
 
@@ -145,7 +165,7 @@ class DevicesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Device $device
+     * @param \App\Models\Device $device
      * @return \Illuminate\Http\Response
      */
     public function destroy(Device $device)
@@ -163,6 +183,43 @@ class DevicesController extends Controller
         return response([
             'code' => 10000,
             'message' => '删除成功'
+        ]);
+    }
+
+    public function batchUpdate(Request $request)
+    {
+        $this->validate($request, [
+            'devices' => ['required', 'array'],
+            'devices.*.id' => ['required', 'exists:devices,id'],
+            'devices.*.name' => ['required'],
+            'devices.*.sn' => ['required'],
+            'devices.*.location_id' => ['required', 'exists:locations,id'],
+            'devices.*.type' => ['nullable'],
+            'devices.*.model' => ['nullable'],
+            'devices.*.expired_at' => ['required'],
+            'devices.*.interval' => ['required'],
+            'devices.*.desc' => ['nullable'],
+            'devices.*.check_items' => ['nullable'],
+            'devices.*.check_items.*.name' => ['nullable'],
+        ]);
+        $ids = [];
+        try {
+            DB::transaction(function () use ($request, &$ids) {
+                foreach ($request->input('devices') as $arr) {
+                    $ids[] = $arr['id'];
+                    $device = Device::find($arr['id']);
+                    $device->update(collect($arr)->only('name', 'sn', 'location_id', 'type', 'model', 'expired_at', 'desc', 'image', 'interval')->toArray());
+                }
+            });
+        } catch (\Throwable $e) {
+            return response([
+                'message' => '保存失败'
+            ], 400);
+        }
+
+        return response([
+            'message' => '保存成功',
+            'data' => DeviceResource::collection(Device::with('location')->whereIn('id', $ids)->latest()->get())
         ]);
     }
 }

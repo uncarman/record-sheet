@@ -19,9 +19,7 @@ class LocationsController extends Controller
         $type = $request->input('type', '');
         $isAll = $request->input('is_all');
         $locations = Location::with([
-            'devices', 'devices.maintain_logs' => function ($query) {
-                $query->limit(1);
-            }
+            'devices', 'devices.maintain_log'
         ])->when($type, function ($query) use ($type) {
             $query->whereHas('devices', function ($sub_query) use ($type) {
                 $sub_query->where('type', $type);
@@ -49,7 +47,7 @@ class LocationsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(LocationRequest $request)
@@ -66,7 +64,7 @@ class LocationsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Location $location
+     * @param \App\Models\Location $location
      * @return \Illuminate\Http\Response
      */
     public function show(Location $location)
@@ -77,7 +75,7 @@ class LocationsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Location $location
+     * @param \App\Models\Location $location
      * @return \Illuminate\Http\Response
      */
     public function edit(Location $location)
@@ -88,8 +86,8 @@ class LocationsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Location $location
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Location $location
      * @return \Illuminate\Http\Response
      */
     public function update(LocationRequest $request, Location $location)
@@ -106,7 +104,7 @@ class LocationsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Location $location
+     * @param \App\Models\Location $location
      * @return \Illuminate\Http\Response
      */
     public function destroy(Location $location)

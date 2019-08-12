@@ -13,11 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-Route::group([], function () {
+Route::post('login', 'LoginController@login')->name('login');
+
+Route::group(['middleware' => 'basic.auth'], function () {
+    Route::get('home', 'HomeController@index')->name('home.index');
+
+    Route::post('devices/batchUpdate', 'DevicesController@batchUpdate')->name('devices.update.batch');
     Route::apiResource('devices', 'DevicesController', [
         'only' => ['index', 'store', 'show', 'update', 'destroy']
     ]);

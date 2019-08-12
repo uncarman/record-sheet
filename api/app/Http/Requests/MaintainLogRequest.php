@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Device;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MaintainLogRequest extends FormRequest
