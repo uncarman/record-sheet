@@ -9,8 +9,6 @@
 
 define('LARAVEL_START', microtime(true));
 
-header('Access-Control-Allow-Origin: *');
-
 /*
 |--------------------------------------------------------------------------
 | Register The Auto Loader
