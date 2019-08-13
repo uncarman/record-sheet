@@ -58,6 +58,14 @@
             color: #ABABAB;
             font-size: 12px;
         }</style>
+    <script>var _hmt = _hmt || [];
+        var hmid = "1dfa88d0c8571eef2d383070cb3e5ca1";
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?" + hmid;
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();</script>
     <link href=/css/chunk-vendors.faf58205.css rel=stylesheet>
     <link href=/css/app.f1bce0bf.css rel=stylesheet>
 </head>
@@ -69,11 +77,9 @@
             <div class=d2-home__title>正在加载资源</div>
             <div class=d2-home__sub-title>初次加载资源可能需要较多时间 请耐心等待</div>
         </div>
-        <div class=d2-home__footer><a href=https://github.com/d2-projects/d2-admin target=_blank>https://github.com/d2-projects/d2-admin</a>
-        </div>
     </div>
 </div>
 <script src=/js/chunk-vendors.0ec0aad1.js></script>
-<script src=/js/app.190e5997.js></script>
+<script src=/js/app.0ed4221d.js></script>
 </body>
 </html>

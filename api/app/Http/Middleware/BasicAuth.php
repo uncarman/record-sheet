@@ -15,12 +15,8 @@ class BasicAuth
      */
     public function handle($request, Closure $next)
     {
-        $authorization = !empty($request->input('token')) ? $request->input('token') : $request->header('Authorization');
-//        if (!$authorization && strpos($authorization, 'Basic ') == false) {
-//            abort(401);
-//        }
+        $authorization = $request->input('token', '') ?: $request->header('Authorization');
 
-//        $auth = explode(' ', $authorization);
         $credential = explode(':', base64_decode($authorization));
 
         if (empty($credential)) {

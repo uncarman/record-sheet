@@ -27,6 +27,7 @@ class DevicesController extends Controller
         $devices = Device::with([
             'check_items',
             'location',
+            'maintain_log',
             'maintain_logs' => function ($query) {
                 $query->latest();
             }
