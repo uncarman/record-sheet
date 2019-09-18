@@ -28,11 +28,39 @@
 	                    </div>
                     </div>
                 </div>
-                <p style="margin: 10px 0;">
-                	<button class="btn btn-primary btn-lg btn-block" v-on:click="addRecord(device.id);">增加巡检记录</button>
-                </p>
+
+                <div style="position: fixed; width: 100%; left: 0px; bottom: 0px; background:rgba(255,255,255,0.85);
+                padding: 10px 15px 20px;">
+                	<button class="btn btn-primary btn-lg btn-block"
+                		v-show="!this.ischfinished"
+                		v-on:click="addRecord(device.id);">增加巡检记录</button>
+
+                	<button class="btn btn-warning btn-lg btn-block"
+                		v-if="this.device.change_status==1"
+                		v-on:click="chDevice();">请求更换设备</button>
+
+                	<button class="btn btn-success btn-lg btn-block"
+                		v-show="!this.ischfinished"
+                		v-if="this.device.change_status==3"
+                		v-on:click="chDeviceFinished();">更换设备完成</button>
+
+                	<div class="form-group" v-show="ischfinished">
+                		<h3>更新设备到期时间:</h3>
+                		<p style="margin: 10px 0; ">
+                			<input class="form-control" type="date" v-model="chDate">
+                		</p>
+                		<div class="row">
+                			<div class="col-xs-6">
+                				<button class="btn btn-primary btn-lg btn-block" v-on:click="saveExpDate();">确定</button>
+                			</div>
+                			<div class="col-xs-6">
+                				<button class="btn btn-default btn-lg btn-block" v-on:click="chDeviceFinished();">取消</button>
+                			</div>
+                		</div>
+                	</div>
+                </div>
                 
-                <h3>基本信息:</h3>
+                <h3 style="margin-top: 20px;">基本信息:</h3>
 				<div class="form-group">
 					<label for="operator">姓名:</label>
 					<input type="text" class="form-control" id="operator" v-model="device.admin">
@@ -45,11 +73,15 @@
 					<label for="operatorPhone">地点:</label>
 					<input readonly="" type="text" class="form-control" id="name" v-model="device.location.name">
 				</div>
+
+				<h3>设备信息:</h3>
+				<div v-html="device.notes"></div>
+
 				<div  v-if="device.image">
 					<img class="bigImg" v-bind:src="device.image" />
 				</div>
-				<h3>设备信息:</h3>
-				<div v-html="device.notes"></div>
+
+				<div style="margin-bottom: 90px;"></div>
 		    </div>
 
 		</div>
@@ -80,6 +112,44 @@
             });
 	    }
 
+	    function chDevice(self) {
+	    	global.ajax_data(this, {
+            	_method: 'post',
+	            _url: settings.ajax_func.updateDeviceChangeStatus,
+	            _param: {
+					id: id,
+					change_status: 2,
+	            }
+            }, function(res){
+            	console.log(res);
+            	if(res.code == 10000) {
+            		alert("保存记录成功");
+            		window.location.href = "index.html";
+            	}
+            }, function(res){
+            	alert("保存数据失败");
+            });
+	    }
+
+	    function chDeviceExp(self) {
+	    	global.ajax_data(this, {
+            	_method: 'post',
+	            _url: settings.ajax_func.updateDeviceExpredDate,
+	            _param: {
+					id: id,
+					date: self.chDate,
+	            }
+            }, function(res){
+            	console.log(res);
+            	if(res.code == 10000) {
+            		alert("保存记录成功");
+            		window.location.href = "index.html";
+            	}
+            }, function(res){
+            	alert("保存数据失败");
+            });
+	    }
+
 		var app = new Vue({
 			el: '#app',
 			data: {
@@ -92,6 +162,8 @@
 					},
 					records: []
 				},
+				chDate: "",
+				ischfinished: false,
 			},
 			methods: {
 				gotoBack: function() {
@@ -106,6 +178,23 @@
 				addRecord: function(id) {
 					window.location.href = "addRecord.html?id="+id;
 				},
+
+				chDevice: function(s) {
+					if(confirm("确定请求更换设备吗?")) {
+						chDevice(this);
+					}
+				},
+
+				chDeviceFinished: function() {
+					this.ischfinished = !this.ischfinished;
+				},
+
+				saveExpDate: function() {
+					if(confirm("确定更新设备时间吗?")) {
+						chDeviceExp(this);
+					}
+				},
+
 				getDevice: getDevice,
 			},
 			mounted() {

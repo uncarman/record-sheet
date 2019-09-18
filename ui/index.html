@@ -57,6 +57,29 @@
 		        </div>
 
 		    </div>
+
+		    <div class="mainbody" v-if="chlist.length>0">
+		    	<hr />
+		    	<h3 class="text-left" style="margin:15px 0; ">待更换列表</h3>
+
+		    	<div class="list">
+		            <div class="media" v-on:click="gotoSummary(b, b.type);" v-for="b in chlist">
+		                <div class="glyphicon glyphicon-menu-right"></div>
+		                <div class="media-left">
+		                    <img class="media-object" v-bind:src="b['image'] ? b['image'] : settings.default_img" style="width: 64px; height: 64px;">
+		                </div>
+		                <div class="media-body">
+		                    <h4 class="media-heading" v-html="b.name"></h4>
+	                    	<div>
+	                    		<div>
+			                    	<p><b>负责人:</b> <em v-html="b.admin+' ('+b.adminPhone+')'"></em></p>
+			                    	<p v-if="b.records.length>0"><b>最近巡检:</b> <em  :class="[b.records[0].status=='正常'?'':'label-danger-s']" v-html="b.records[0].status+' ('+b.records[0].updateTime+')'"></em></p>
+			                    </div>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
 		</div>
 
 	<script type="text/javascript" src="js/libs/jquery-1.11.0.min.js"></script>
@@ -77,13 +100,26 @@
             	_method: 'get',
 	            _url: settings.ajax_func.getDevice,
 	            _param: {
-	            	page: self.curPage + 1,
+	            	page: 1,
 	            	need_check: 1
 	            }
             }, function(res){
             	self.list = res.data;
             	self.curPage = res.curPage;
             	self.totalPage = res.totalPage;
+            }, function(res){
+            	alert("获取数据失败");
+            });
+
+            global.ajax_data(this, {
+            	_method: 'get',
+	            _url: settings.ajax_func.getDevice,
+	            _param: {
+	            	page: 1,
+	            	change_status: 2,
+	            }
+            }, function(res){
+            	self.chlist = res.data;
             }, function(res){
             	alert("获取数据失败");
             });
@@ -97,6 +133,8 @@
 				list: [],
 				curPage: 0,
 				totalPage: 0,
+
+				chlist: [],
 			},
 			methods: {
 				gotoHome: function () {

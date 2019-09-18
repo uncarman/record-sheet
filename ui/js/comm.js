@@ -40,6 +40,8 @@ var settings = {
         getRecord: "/api/maintain_logs",
         getDevice: "/api/devices",
         saveRecord: "/api/maintain_logs",
+        updateDeviceChangeStatus: "/api/devices/{id}/change-status/update",
+        updateDeviceExpredDate: "/api/devices/{id}/expired-date/update",
 
     },
 

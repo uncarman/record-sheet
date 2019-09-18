@@ -150,6 +150,7 @@
 					extr: {},
 					notes: "",
 					photos: [],
+					change_status:1, // 不用
 				}
 			},
 			methods: {
@@ -174,7 +175,7 @@
 					this.$set(this.formData.extr, eid, v);
 					console.log(this.formData);
 				},
-
+				
 				changePic: function(){
 					var self = this;
 					var reads= new FileReader();
